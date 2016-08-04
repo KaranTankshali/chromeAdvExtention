@@ -51,11 +51,12 @@ const baseDevConfig = () => ({
         presets: ['react-hmre']
       }
     }, {
-      test: /\.css$/,
+      test   : /\.scss$/,
       loaders: [
         'style',
         'css?modules&sourceMap&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]',
-        'postcss'
+        'postcss',
+        'sass?sourceMap&outputStyle=expanded'
       ]
     }]
   }

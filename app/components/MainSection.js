@@ -1,8 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import TodoItem from './TodoItem';
-import Footer from './Footer';
-import { SHOW_ALL, SHOW_COMPLETED, SHOW_ACTIVE } from '../constants/TodoFilters';
-import style from './MainSection.css';
+import style from './MainSection.scss';
 import _ from 'lodash';
 
 const IMAGES = [
@@ -43,13 +40,13 @@ class MainSection extends React.Component {
 
     return (
       <div className="ucImgCtn">
-        <div className={style.ucSelectedImgOuterCtn}>
-          <label className={style.ucSiocPhotoLabel}>PHOTO</label>
-          <div className={style.ucSelectedImgInnerCtn} style={{backgroundImage : `url('${IMAGES[currentSelected]}')`}}></div>
+        <div className="ucSelectedImgOuterCtn">
+          <label className="ucSiocPhotoLabel">PHOTO</label>
+          <div className="ucSelectedImgInnerCtn" style={{backgroundImage : `url('${IMAGES[currentSelected]}')`}}></div>
         </div>
-        <div className={style.otherImgOuterCtn}>
-          <label className={style.ucSiocPhotoLabel}>Select other Image</label>
-          <div className={style.otherImgCtn}>
+        <div className="otherImgOuterCtn">
+          <label className="ucSiocPhotoLabel">Select other Image</label>
+          <div className="otherImgCtn">
           {_.map(_.omit(IMAGES,currentSelected) , (image, index) => {
                 return this.renderImage(image , index);
           })}
@@ -60,20 +57,20 @@ class MainSection extends React.Component {
   }
 
   renderImage(image , index) {
-    return <div className={style.otherImg} data-index={index} key={index} style={{backgroundImage : `url('${image}')`}} onClick={this.setCurrent}></div>
+    return <div className="otherImg" data-index={index} key={index} style={{backgroundImage : `url('${image}')`}} onClick={this.setCurrent}></div>
   }
 
   renderDetailsSection() {
     const { title } = this.state;
     return (
       <div className="uc-details-ctn">
-        <label className={style.ucDcLabel}>TITLE</label>
-        <textarea value={title} className={style.ucDcTitleText} onChange={this.handleChange}></textarea>
-        <label className={style.ucDcLabel}>DESCRIPTION</label>
-        <textarea className={style.ucDcTitleText}
+        <label className="ucDcLabel">TITLE</label>
+        <textarea value={title} className="ucDcTitleText" onChange={this.handleChange}></textarea>
+        <label className="ucDcLabel">DESCRIPTION</label>
+        <textarea className="ucDcTitleText"
                   placeholder="Describe this Image"/>
-        <label className={style.ucDcLabel}>NOTE</label>
-        <textarea className={style.ucDcTitleText}
+        <label className="ucDcLabel">NOTE</label>
+        <textarea className="ucDcTitleText"
                   placeholder="Add a note"/>
       </div>
     );
@@ -81,8 +78,8 @@ class MainSection extends React.Component {
 
   renderFooterSection() {
     return(
-      <div className={style.footer}>
-      <button className={style.uploadButton}>Upload</button>
+      <div className="footer">
+      <button className="uploadButton">Upload</button>
       </div>
     )
   }

@@ -9,3 +9,9 @@ dev/
 *.crx
 *.pem
 update.xml
+
+#idea files
+
+.idea/
+*.iml
+*.xml
