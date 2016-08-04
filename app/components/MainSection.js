@@ -1,196 +1,281 @@
 import React, { Component, PropTypes } from 'react';
-import style from './MainSection.scss';
+import './MainSection.scss';
 import _ from 'lodash';
+import axios from 'axios';
 
-const IMAGES = [
-  "https://sprcdn-nqa-sam.sprinklr.com/5/cricket_%282%29-d98432f9-3fbb-4827-85b5-74098a00b0a6-2056611677_p.jpg",
-  "https://sprcdn-nqa-sam.sprinklr.com/5/wallpapers-7020-7277-hd-wallpa-53b11c2d-42f8-4f76-b561-afe6e2f2c6c1-1988741213_p.jpg",
-  "https://sprcdn-nqa-sam.sprinklr.com/5/SMB034-a43b99c7-219b-43b2-b524-3273b5696f1b-644337444_p.jpg",
-  "https://sprcdn-nqa-sam.sprinklr.com/5/watch_dogs_27-wallpaper-1440x9-fad21dbf-a9ba-4c93-b8cf-54d344ed933a-446840274_p.jpg",
-  "https://sprcdn-nqa-sam.sprinklr.com/5/verizon-wireless-store-2877182-69c662d2-5a11-4a1e-a03c-7463018ff7c3-1675114908_p.jpg"
-];
-
+let thumbnailImages = [], source;
 class MainSection extends React.Component {
-  constructor() {
-    super();
-    this.state = { currentSelected : 0 , title : 'Hello'}
-  }
+    constructor() {
+        super();
+        this.state = {
+            currentSelected: 0,
+            title: '',
+            desc: '',
+            isUploading: false,
+            contentUploaded: false,
+            hasTitleError: false
+        }
+    }
 
-  componentWillMount() {
-    const currentTab = _.get(this.state , 'currentTab' , {});
-    if(_.isEmpty(currentTab)) {
-          chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, (tabs) => {
-            this.setState({title : tabs[0].title});
+    componentWillMount() {
+        const currentTab = _.get(this.state, 'currentTab', {});
+        if (_.isEmpty(currentTab)) {
+            chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, (tabs) => {
+                this.fetchLinkData(tabs);
+            });
+        }
+    }
+
+    render() {
+        const { contentUploaded ,title} = this.state;
+        if (contentUploaded) {
+            {
+                this.handleContentUploaded()
+            }
+            return (
+                <div className="thanksMsg">
+                    <div className="fa fa-check check-upload">
+                    </div>
+                    <div className="uploadHeading">
+                        Uploaded successfully!
+                    </div>
+                    <div className="uploadText">
+                        The article {title} has been uploaded successfully to Verizon advocacy.
+                    </div>
+                </div>
+            );
+        }
+        return (
+            <div className="uploadCtn">
+                {this.renderImageSection()}
+                {this.renderDetailsSection()}
+                {this.renderFooterSection()}
+            </div>
+        );
+    }
+
+    renderImageSection() {
+        const { currentSelected } = this.state;
+
+        return (
+            <div className="ucImgCtn">
+                <div className="ucSelectedImgOuterCtn">
+                    <label className="ucSiocPhotoLabel">PHOTO</label>
+                    <div className="ucSelectedImgInnerCtn"
+                         style={{backgroundImage : `url('${thumbnailImages[currentSelected]}')`}}></div>
+                </div>
+                <div className="otherImgOuterCtn">
+                    <label className="ucSiocPhotoLabel">Select other Image</label>
+                    <div className="otherImgCtn">
+                        {_.map(_.omit(thumbnailImages, currentSelected), (image, index) => {
+                            return this.renderImage(image, index);
+                        })}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    renderImage(image, index) {
+        return <div className="otherImg" data-index={index} key={index} style={{backgroundImage : `url('${image}')`}}
+                    onClick={this.setCurrent}></div>
+    }
+
+    renderDetailsSection() {
+        const { desc } = this.state;
+        return (
+            <div className="uc-details-ctn">
+                <label className="ucDcLabel">TITLE</label>
+                {this.renderTitleTextArea()}
+                <label className="ucDcLabel">DESCRIPTION</label>
+                <textarea value={desc}
+                          className="ucDcTitleText"
+                          placeholder="Describe this Image"
+                          ref="desc"
+                          onChange={this.handleDescChange}/>
+                <label className="ucDcLabel">NOTE</label>
+                <textarea className="ucDcTitleText"
+                          placeholder="Add a note"
+                          ref="note"
+                          autoFocus/>
+            </div>
+        );
+    }
+
+    renderTitleTextArea() {
+        const { hasTitleError , title} = this.state;
+        if (hasTitleError) {
+            return (
+                <textarea value={title}
+                          className="ucDcTitleTextError"
+                          ref="title"
+                          onChange={this.handleChange}
+                          placeholder="Non-empty title required"/>
+            );
+        }
+        return (
+            <textarea value={title}
+                      className="ucDcTitleText"
+                      ref="title"
+                      onChange={this.handleChange}/>
+        );
+    }
+
+    renderFooterSection() {
+        return (
+            <div className="footer">
+                {this.renderUploadButton()}
+            </div>
+        );
+    }
+
+    renderUploadButton() {
+        const { isUploading , hasTitleError} = this.state;
+        if (isUploading) {
+            return (
+                <button className="uploadButton" disabled="true">Uploading...</button>
+            );
+        } else if (hasTitleError) {
+            return (
+                <button className="uploadButton" onClick={this.handleUpload} disabled="true">Upload</button>
+            );
+        }
+        return (
+            <button className="uploadButton" onClick={this.handleUpload}>Upload</button>
+        );
+    }
+
+    getTitle() {
+        const { currentTab } = this.state;
+        if (!_.isEmpty(currentTab)) {
+            return currentTab.title;
+        }
+        return 'Hello';
+    }
+
+    setCurrent = (event) => {
+        const data = event.currentTarget.dataset;
+        this.setState({currentSelected: data.index});
+    }
+
+    handleChange = (event) => {
+        const { value } = event.target;
+        this.setState({
+            title: value,
+            hasTitleError: value ? false : true
         });
     }
-  }
 
-  render() {
-    return (
-      <div className={style.uploadCtn}>
-        {this.renderImageSection()}
-        {this.renderDetailsSection()}
-        {this.renderFooterSection()}
-      </div>
-    );
-  }
-
-  renderImageSection() {
-    const { currentSelected } = this.state;
-
-    return (
-      <div className="ucImgCtn">
-        <div className="ucSelectedImgOuterCtn">
-          <label className="ucSiocPhotoLabel">PHOTO</label>
-          <div className="ucSelectedImgInnerCtn" style={{backgroundImage : `url('${IMAGES[currentSelected]}')`}}></div>
-        </div>
-        <div className="otherImgOuterCtn">
-          <label className="ucSiocPhotoLabel">Select other Image</label>
-          <div className="otherImgCtn">
-          {_.map(_.omit(IMAGES,currentSelected) , (image, index) => {
-                return this.renderImage(image , index);
-          })}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  renderImage(image , index) {
-    return <div className="otherImg" data-index={index} key={index} style={{backgroundImage : `url('${image}')`}} onClick={this.setCurrent}></div>
-  }
-
-  renderDetailsSection() {
-    const { title } = this.state;
-    return (
-      <div className="uc-details-ctn">
-        <label className="ucDcLabel">TITLE</label>
-        <textarea value={title} className="ucDcTitleText" onChange={this.handleChange}></textarea>
-        <label className="ucDcLabel">DESCRIPTION</label>
-        <textarea className="ucDcTitleText"
-                  placeholder="Describe this Image"/>
-        <label className="ucDcLabel">NOTE</label>
-        <textarea className="ucDcTitleText"
-                  placeholder="Add a note"/>
-      </div>
-    );
-  }
-
-  renderFooterSection() {
-    return(
-      <div className="footer">
-      <button className="uploadButton">Upload</button>
-      </div>
-    )
-  }
-
-  getTitle() {
-    const { currentTab } = this.state;
-    if(!_.isEmpty(currentTab)) {
-      return currentTab.title;
+    handleDescChange = (event) => {
+        const { value } = event.target;
+        this.setState({
+            desc: value
+        });
     }
-    return 'Hello';
-  }
 
-  setCurrent = (event) => {
-    const data = event.currentTarget.dataset;
-    this.setState({currentSelected: data.index});
-  }
+    handleUpload = () => {
+        const { title, desc, note } = this.refs,
+            { currentSelected, hasTitleError } = this.state;
+        if (!hasTitleError) {
+            this.setState({isUploading: true});
+            console.log(title.value, desc.value, note.value, thumbnailImages[currentSelected]);
+            const payload = {
+                name: title.value || '',
+                desc: desc.value || '',
+                note: note.value || '',
+                picture: thumbnailImages[currentSelected] || ''
+            };
 
-  handleChange = (event) => {
-    const { value } = event.target;
-    this.setState({
-      title : value
-    })
-  }
+            this.uploadContent(payload);
+            setTimeout(() => {
+                this.setState({isUploading: false, contentUploaded: true});
+            }, 3000);
+        }
+    }
+
+    uploadContent = (payload) => {
+
+        const mediaString = `media: {
+                                source: "${source}",
+                                picture: "${payload.picture}",
+                                name: "${payload.name}",
+                                description: "${payload.desc}",
+                                type: "LINK"
+                        },`,
+            query = `mutation {
+                    uploadContent(input: {
+                        ${payload.picture ? mediaString : ''}
+                        message: "${payload.note}",
+                        projectId: "d910d658-0d19-4356-95db-7fbe2ee71371",
+                        experienceId: "6e09195f-6c33-41be-a9ce-db18884e9c97",
+                        experienceType: "ADVOCACY",
+                        communityUserId: "577624d3e4b09c780d67b7d7",
+                        activityType: "upload_content",
+                        widgetId: "67695982-6b85-4ad9-a278-06d9a5de0110",
+                        widgetType: "UPLOAD_CONTENT_WIDGET",
+                        clientMutationId: "1"
+                    }) {
+                        success,
+                        clientMutationId
+                    }
+                }`;
+        axios.post("http://localhost:5000/schema/data",
+            {
+                query
+            })
+            .then((response) => {
+                debugger;
+                console.log(response);
+            })
+            .catch(() => {
+
+            });
+    }
+
+    handleContentUploaded = () => {
+        setTimeout(() => {
+            this.setState({contentUploaded: false});
+        }, 3000);
+    }
+
+    fetchLinkData = (tabs) => {
+        source = tabs[0].url;
+        axios.post("http://localhost:5000/schema/data",
+            {
+                query: `mutation {
+                            importUrl(input: {
+                                url: "${tabs[0].url}",
+                                clientMutationId: "1"
+                            }) {
+                                linkDetails {
+                                    originalUrl
+                                    title
+                                    providerName
+                                    description
+                                    thumbnails {
+                                        url
+                                        width
+                                        height
+                                        size
+                                    }
+                                }
+                            }
+                        }`
+            })
+            .then((response) => {
+                if (response) {
+                    const linkDetails = _.get(response.data.data.importUrl, 'linkDetails', {});
+                    console.log(linkDetails);
+                    thumbnailImages = _.map(linkDetails.thumbnails, (thumbnail) => {
+                        return thumbnail.url;
+                    });
+                    this.setState({title: linkDetails.title || '', desc: linkDetails.description});
+                }
+            })
+            .catch(() => {
+
+            });
+    }
 }
 
 export default MainSection;
-
-// const TODO_FILTERS = {
-//   [SHOW_ALL]: () => true,
-//   [SHOW_ACTIVE]: todo => !todo.completed,
-//   [SHOW_COMPLETED]: todo => todo.completed
-// };
-//
-// export default class MainSection extends Component {
-//
-//   static propTypes = {
-//     todos: PropTypes.array.isRequired,
-//     actions: PropTypes.object.isRequired
-//   };
-//
-//   constructor(props, context) {
-//     super(props, context);
-//     this.state = { filter: SHOW_ALL };
-//   }
-//
-//   handleClearCompleted = () => {
-//     const atLeastOneCompleted = this.props.todos.some(todo => todo.completed);
-//     if (atLeastOneCompleted) {
-//       this.props.actions.clearCompleted();
-//     }
-//   };
-//
-//   handleShow = filter => {
-//     this.setState({ filter });
-//   };
-//
-//   renderToggleAll(completedCount) {
-//     const { todos, actions } = this.props;
-//     if (todos.length > 0) {
-//       return (
-//         <input
-//           className={style.toggleAll}
-//           type="checkbox"
-//           checked={completedCount === todos.length}
-//           onChange={actions.completeAll}
-//         />
-//       );
-//     }
-//   }
-//
-//   renderFooter(completedCount) {
-//     const { todos } = this.props;
-//     const { filter } = this.state;
-//     const activeCount = todos.length - completedCount;
-//
-//     if (todos.length) {
-//       return (
-//         <Footer
-//           completedCount={completedCount}
-//           activeCount={activeCount}
-//           filter={filter}
-//           onClearCompleted={this.handleClearCompleted}
-//           onShow={this.handleShow}
-//         />
-//       );
-//     }
-//   }
-//
-//   render() {
-//     chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, function (tabs) {
-//       console.log(tabs[0].url , "tabs");
-//     });
-//     const { todos, actions } = this.props;
-//     const { filter } = this.state;
-//
-//     const filteredTodos = todos.filter(TODO_FILTERS[filter]);
-//     const completedCount = todos.reduce(
-//       (count, todo) => (todo.completed ? count + 1 : count),
-//       0
-//     );
-//
-//     return (
-//       <section className={style.main}>
-//         {this.renderToggleAll(completedCount)}
-//         <ul className={style.todoList}>
-//           {filteredTodos.map(todo =>
-//             <TodoItem key={todo.id} todo={todo} {...actions} />
-//           )}
-//         </ul>
-//         {this.renderFooter(completedCount)}
-//       </section>
-//     );
-//   }
-// }

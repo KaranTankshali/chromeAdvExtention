@@ -1,12 +1,13 @@
 import React from 'react';
 import _ from 'lodash';
-import style from './MainSection.scss';
+import './MainSection.scss';
+import axios from 'axios';
 
 class LoginSection extends React.Component {
   render() {
     return (
       <div className="login-ctn">
-        <button className={style.uploadButton} onClick={this.getCall}>GetCall</button>
+        <button className="uploadButton" onClick={this.getCall}>GetCall</button>
       </div>
     )
   }
@@ -17,8 +18,8 @@ class LoginSection extends React.Component {
       xhr.onreadystatechange = function() {
         if (xhr.readyState == 4) {
           var resp = JSON.parse(xhr.responseText);
-          debugger;
-        }
+           debugger;
+         }
       }
       xhr.send();
   }

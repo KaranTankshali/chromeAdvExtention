@@ -1,151 +1,27 @@
-.main {
-  position: relative;
-  z-index: 2;
-  border-top: 1px solid #e6e6e6;
-}
-
-.todoList {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.todoList li {
-  position: relative;
-  font-size: 24px;
-  border-bottom: 1px solid #ededed;
-}
-
-.todoList li:last-child {
-  border-bottom: none;
-}
-
-.todoList li.editing {
-  border-bottom: none;
-  padding: 0;
-}
-
-.todoList li.editing .edit {
-  display: block;
-  width: 506px;
-  padding: 13px 17px 12px 17px;
-  margin: 0 0 0 43px;
-}
-
-.todoList li.editing .view {
-  display: none;
-}
-
-.todoList li .toggle {
+.check-upload {
+  height: 10rem;
+  width: 10rem;
+  line-height: 10rem;
   text-align: center;
-  width: 40px;
-  /* auto, since non-WebKit browsers doesn't support input styling */
-  height: auto;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  margin: auto 0;
-  border: none; /* Mobile Safari */
-  -webkit-appearance: none;
-  -moz-appearance: none;
+  color: #0DA547;
+  border: 0.5rem solid #0DA547;
+  border-radius: 50%;
+  display: inline-block;
+  font-size: 5rem;
+  -webkit-text-stroke: 0.5rem #fff;
+  margin-bottom: 2rem;
 }
-
-.todoList li .toggle:after {
-  content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="-10 -18 100 135"><circle cx="50" cy="50" r="50" fill="none" stroke="#ededed" stroke-width="3"/></svg>');
-}
-
-.todoList li .toggle:checked:after {
-  content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="-10 -18 100 135"><circle cx="50" cy="50" r="50" fill="none" stroke="#bddad5" stroke-width="3"/><path fill="#5dc2af" d="M72 25L42 71 27 56l-4 4 20 20 34-52z"/></svg>');
-}
-
-.todoList li label {
-  white-space: pre-line;
-  word-break: break-all;
-  padding: 15px 60px 15px 15px;
-  margin-left: 45px;
-  display: block;
-  line-height: 1.2;
-  transition: color 0.4s;
-}
-
-.todoList li.completed label {
-  color: #d9d9d9;
-  text-decoration: line-through;
-}
-
-.todoList li .destroy {
-  display: none;
-  position: absolute;
-  top: 0;
-  right: 10px;
-  bottom: 0;
-  width: 40px;
-  height: 40px;
-  margin: auto 0;
-  font-size: 30px;
-  color: #cc9a9a;
-  margin-bottom: 11px;
-  transition: color 0.2s ease-out;
-}
-
-.todoList li .destroy:hover {
-  color: #af5b5e;
-}
-
-.todoList li .destroy:after {
-  content: '×';
-}
-
-.todoList li:hover .destroy {
-  display: block;
-}
-
-.todoList li .edit {
-  display: none;
-}
-
-.todoList li.editing:last-child {
-  margin-bottom: -1px;
-}
-
-.toggleAll {
-  position: absolute;
-  top: -55px;
-  left: -12px;
-  width: 60px;
-  height: 34px;
-  text-align: center;
-  border: none; /* Mobile Safari */
-}
-
-.toggleAll:before {
-  content: '❯';
-  font-size: 22px;
-  color: #e6e6e6;
-  padding: 10px 27px 10px 27px;
-}
-
-.toggleAll:checked:before {
-  color: #737373;
-}
-
-
-/*.App__normal {
-  margin: 0 !important;
-  box-shadow: 0 transparent !important;
-}*/
-
 .uploadCtn {
-   padding: 1.5rem;
+  padding: 1.5rem;
 }
 
 .ucDcLabel {
-    color: #82828C;
-    display: block;
-    font-size: 1rem;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-    margin-left:0.5rem;
+  color: #82828C;
+  display: block;
+  font-size: 1rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  margin-left: 0.5rem;
 }
 
 .ucDcTitleText {
@@ -156,10 +32,21 @@
   color: #4b4b55;
   padding: 0.5rem;
   margin-bottom: 1rem;
-  border-radius:0.3rem;
+  border-radius: 0.3rem;
 }
 
-.ucDcTitleText:hover , .ucDcTitleText:focus {
+.ucDcTitleTextError {
+  display: block;
+  resize: none;
+  width: calc(100% - 1.5rem);
+  border: 1px solid #cd040b;
+  color: #4b4b55;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border-radius: 0.3rem;
+}
+
+.ucDcTitleText:hover, .ucDcTitleText:focus, .ucDcTitleTextError:hover, .ucDcTitleTextError:focus {
   outline: none;
 }
 
@@ -169,9 +56,9 @@
 }
 
 .otherImgOuterCtn {
-    margin-top:2rem;
-    margin-left:2rem;
-    width: 50%;
+  margin-top: 2rem;
+  margin-left: 2rem;
+  width: 50%;
 }
 
 .ucSiocPhotoLabel {
@@ -180,7 +67,7 @@
   font-size: 1rem;
   font-weight: bold;
   margin-bottom: 0.5rem;
-  margin-left:0.5rem;
+  margin-left: 0.5rem;
 }
 
 .ucSelectedImgInnerCtn {
@@ -190,6 +77,7 @@
   background-position: center;
   border: 0.1rem solid #cd040b;
   margin-bottom: 1rem;
+  background-color: #e6e6e6;
 }
 
 .otherImg {
@@ -199,6 +87,7 @@
   background-size: cover;
   margin: 0 1rem 0.5rem 0;
   background-position: center;
+  background-color: #e6e6e6;
   border: 1px solid #e6e6e6;
 }
 
@@ -208,7 +97,7 @@
 
 .footer {
   margin: 1.5rem 0 0 0;
-  position:relative;
+  position: relative;
 }
 
 .uploadButton {
@@ -219,33 +108,26 @@
   position: relative;
   float: right;
   cursor: pointer;
+  outline:none;
+  border:0;
 }
 
 .footer:after {
-     visibility: hidden;
-     display: block;
-     font-size: 0;
-     content: " ";
-     clear: both;
-     height: 0;
+  visibility: hidden;
+  display: block;
+  font-size: 0;
+  content: " ";
+  clear: both;
+  height: 0;
 }
-/*
-  Hack to remove background from Mobile Safari.
-  Can't use it globally since it destroys checkboxes in Firefox
-*/
-@media screen and (-webkit-min-device-pixel-ratio:0) {
-  .toggleAll,
-  .todoList li .toggle {
-    background: none;
-  }
 
-  .todoList li .toggle {
-    height: 40px;
-  }
+.uploadHeading {
+  font-weight: bold;
+  font-size: 1.6rem;
+  margin-bottom: 2rem;
+}
 
-  .toggleAll {
-    transform: rotate(90deg);
-    -webkit-appearance: none;
-    -moz-appearance: none;
-  }
+.thanksMsg {
+  text-align: center;
+  padding: 5rem 10rem;
 }
