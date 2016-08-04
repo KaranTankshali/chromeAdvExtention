@@ -1,6 +1,8 @@
 @import '../../constants/colors.scss';
 
-.sso-login {
-    min-height: 3rem;
+.ssoLogin {
     background-color: $verizon-red;
+    cursor: pointer;
+    min-height: 30px;
+    padding: 3px;
 }

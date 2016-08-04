@@ -1,14 +1,26 @@
 import React, { Component, PropTypes } from 'react';
+import {connect} from 'react-redux';
 import _ from 'lodash';
 import classnames from 'classnames';
 
 import config from '../../config/environment';
 import configurations from '../../constants/configurations';
-import './ssoLogin.scss';
+import {ssoLogin} from '../../actions/login';
+import style from './ssoLogin.scss';
 
-export default class SSOLogin extends Component {
+const mapDispatchToProps = (dispatch) => {
+    return {
+        ssoLogin: (ssoObject={}) => {
+            dispatch(ssoLogin(ssoObject));
+        }
+    };
+};
 
-    static propTypes = {};
+class SSOLogin extends Component {
+
+    static propTypes = {
+        ssoLogin: PropTypes.func.isRequired
+    }
 
     constructor(props, context) {
         super(props, context);
@@ -16,7 +28,13 @@ export default class SSOLogin extends Component {
 
     render() {
         return (
-            <div className="sso-login">Login</div>
+            <div className={style.ssoLogin}
+                onClick={this.props.ssoLogin}>Login</div>
         );
     }
 }
+
+export default connect(
+    undefined,
+    mapDispatchToProps
+)(SSOLogin);
