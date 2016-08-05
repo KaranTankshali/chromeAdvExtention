@@ -1,9 +1,10 @@
 import React, { Component, PropTypes } from 'react';
-import './MainSection.scss';
+import { connect } from 'react-redux';
+import style from './MainSection.scss';
 import _ from 'lodash';
 import axios from 'axios';
 
-let thumbnailImages = [], source;
+let thumbnailImages = [], source, profileImageUrl, fullName;
 class MainSection extends React.Component {
     constructor() {
         super();
@@ -13,12 +14,15 @@ class MainSection extends React.Component {
             desc: '',
             isUploading: false,
             contentUploaded: false,
-            hasTitleError: false
+            hasTitleError: false,
+            fetchingLinkPreview: false,
+            fetchingUserDetails: false
         }
     }
 
     componentWillMount() {
         const currentTab = _.get(this.state, 'currentTab', {});
+        this.fetchUserData();
         if (_.isEmpty(currentTab)) {
             chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, (tabs) => {
                 this.fetchLinkData(tabs);
@@ -27,29 +31,50 @@ class MainSection extends React.Component {
     }
 
     render() {
-        const { contentUploaded ,title} = this.state;
+        const { contentUploaded ,title , fetchingLinkPreview , fetchingUserDetails } = this.state;
         if (contentUploaded) {
-            {
-                this.handleContentUploaded()
-            }
+            this.handleContentUploaded();
             return (
-                <div className="thanksMsg">
-                    <div className="fa fa-check check-upload">
+                <div className={style.thanksMsg}>
+                    <div className={style.checkUpload}>
                     </div>
-                    <div className="uploadHeading">
+                    <div className={style.uploadHeading}>
                         Uploaded successfully!
                     </div>
-                    <div className="uploadText">
+                    <div className={style.uploadText}>
                         The article {title} has been uploaded successfully to Verizon advocacy.
                     </div>
                 </div>
             );
+        } else if (fetchingLinkPreview || fetchingUserDetails) {
+            return (
+                <div>Loading...</div>
+            );
         }
         return (
-            <div className="uploadCtn">
+            <div className={style.uploadCtn}>
+                {this.renderProfileSection()}
                 {this.renderImageSection()}
                 {this.renderDetailsSection()}
                 {this.renderFooterSection()}
+            </div>
+        );
+    }
+
+    renderProfileSection() {
+        return (
+            <div className={style.topbar}>
+                <div className={style.userCtn}>
+                    <div className={style.profileImgCtn}>
+                        <img src={profileImageUrl} className={style.profileImg}/>
+                    </div>
+                    <div className={style.userName}>
+                        {fullName}
+                    </div>
+                </div>
+                <button className={style.logout}>
+                    Logout
+                </button>
             </div>
         );
     }
@@ -58,15 +83,16 @@ class MainSection extends React.Component {
         const { currentSelected } = this.state;
 
         return (
-            <div className="ucImgCtn">
-                <div className="ucSelectedImgOuterCtn">
-                    <label className="ucSiocPhotoLabel">PHOTO</label>
-                    <div className="ucSelectedImgInnerCtn"
-                         style={{backgroundImage : `url('${thumbnailImages[currentSelected]}')`}}></div>
+            <div className={style.ucImgCtn}>
+                <div className={style.ucSelectedImgOuterCtn}>
+                    <label className={style.ucSiocPhotoLabel}>PHOTO</label>
+                    <div className={style.ucSelectedImgInnerCtn}>
+                        <img className={style.ucSelectedImg} src={thumbnailImages[currentSelected]}/>
+                    </div>
                 </div>
-                <div className="otherImgOuterCtn">
-                    <label className="ucSiocPhotoLabel">Select other Image</label>
-                    <div className="otherImgCtn">
+                <div className={style.otherImgOuterCtn}>
+                    <label className={style.ucSiocPhotoLabel}>Select other Image</label>
+                    <div className={style.otherImgCtn}>
                         {_.map(_.omit(thumbnailImages, currentSelected), (image, index) => {
                             return this.renderImage(image, index);
                         })}
@@ -77,24 +103,28 @@ class MainSection extends React.Component {
     }
 
     renderImage(image, index) {
-        return <div className="otherImg" data-index={index} key={index} style={{backgroundImage : `url('${image}')`}}
-                    onClick={this.setCurrent}></div>
+        return (
+            <div className={style.otherImgInnerCtn} data-index={index} key={index}
+                 onClick={this.setCurrent}>
+                <img className={style.otherImg} src={image}/>
+            </div>
+        );
     }
 
     renderDetailsSection() {
         const { desc } = this.state;
         return (
-            <div className="uc-details-ctn">
-                <label className="ucDcLabel">TITLE</label>
+            <div className={style.ucDetailsCtn}>
+                <label className={style.ucDcLabel}>TITLE</label>
                 {this.renderTitleTextArea()}
-                <label className="ucDcLabel">DESCRIPTION</label>
+                <label className={style.ucDcLabel}>DESCRIPTION</label>
                 <textarea value={desc}
-                          className="ucDcTitleText"
+                          className={style.ucDcTitleText}
                           placeholder="Describe this Image"
                           ref="desc"
                           onChange={this.handleDescChange}/>
-                <label className="ucDcLabel">NOTE</label>
-                <textarea className="ucDcTitleText"
+                <label className={style.ucDcLabel}>NOTE</label>
+                <textarea className={style.ucDcTitleText}
                           placeholder="Add a note"
                           ref="note"
                           autoFocus/>
@@ -107,7 +137,7 @@ class MainSection extends React.Component {
         if (hasTitleError) {
             return (
                 <textarea value={title}
-                          className="ucDcTitleTextError"
+                          className={style.ucDcTitleTextError}
                           ref="title"
                           onChange={this.handleChange}
                           placeholder="Non-empty title required"/>
@@ -115,7 +145,7 @@ class MainSection extends React.Component {
         }
         return (
             <textarea value={title}
-                      className="ucDcTitleText"
+                      className={style.ucDcTitleText}
                       ref="title"
                       onChange={this.handleChange}/>
         );
@@ -123,7 +153,7 @@ class MainSection extends React.Component {
 
     renderFooterSection() {
         return (
-            <div className="footer">
+            <div className={style.footer}>
                 {this.renderUploadButton()}
             </div>
         );
@@ -133,15 +163,15 @@ class MainSection extends React.Component {
         const { isUploading , hasTitleError} = this.state;
         if (isUploading) {
             return (
-                <button className="uploadButton" disabled="true">Uploading...</button>
+                <button className={style.uploadButton} disabled="true">Uploading...</button>
             );
         } else if (hasTitleError) {
             return (
-                <button className="uploadButton" onClick={this.handleUpload} disabled="true">Upload</button>
+                <button className={style.uploadButton} onClick={this.handleUpload} disabled="true">Upload</button>
             );
         }
         return (
-            <button className="uploadButton" onClick={this.handleUpload}>Upload</button>
+            <button className={style.uploadButton} onClick={this.handleUpload}>Upload</button>
         );
     }
 
@@ -187,9 +217,6 @@ class MainSection extends React.Component {
             };
 
             this.uploadContent(payload);
-            setTimeout(() => {
-                this.setState({isUploading: false, contentUploaded: true});
-            }, 3000);
         }
     }
 
@@ -219,12 +246,12 @@ class MainSection extends React.Component {
                         clientMutationId
                     }
                 }`;
-        axios.post("http://localhost:5000/schema/data",
+        axios.post("https://d910d658-0d19-4356-95db-7fbe2ee71371.nqa-xb.sprinklr.com//schema/data",
             {
                 query
             })
             .then((response) => {
-                debugger;
+                this.setState({isUploading: false, contentUploaded: true});
                 console.log(response);
             })
             .catch(() => {
@@ -240,7 +267,8 @@ class MainSection extends React.Component {
 
     fetchLinkData = (tabs) => {
         source = tabs[0].url;
-        axios.post("http://localhost:5000/schema/data",
+        this.setState({fetchingLinkPreview: true});
+        axios.post("https://d910d658-0d19-4356-95db-7fbe2ee71371.nqa-xb.sprinklr.com//schema/data",
             {
                 query: `mutation {
                             importUrl(input: {
@@ -269,12 +297,26 @@ class MainSection extends React.Component {
                     thumbnailImages = _.map(linkDetails.thumbnails, (thumbnail) => {
                         return thumbnail.url;
                     });
-                    this.setState({title: linkDetails.title || '', desc: linkDetails.description});
+                    this.setState({
+                        fetchingLinkPreview: false,
+                        title: linkDetails.title || '',
+                        desc: linkDetails.description
+                    });
                 }
             })
             .catch(() => {
 
             });
+    }
+
+    fetchUserData = () => {
+        this.setState({fetchingUserDetails: true});
+        axios.get("https://d910d658-0d19-4356-95db-7fbe2ee71371.nqa-xb.sprinklr.com/api/public/user/authenticated/5784b579e4b0a6468014b77f")
+            .then((response) => {
+                    profileImageUrl = _.get(response.data.communityUser, 'profileImageUrl', '');
+                    fullName = _.get(response.data.communityUser, 'fullName', '');
+                    this.setState({fetchingUserDetails: false});
+                });
     }
 }
 

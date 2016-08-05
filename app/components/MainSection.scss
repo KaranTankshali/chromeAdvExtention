@@ -11,8 +11,9 @@
   -webkit-text-stroke: 0.5rem #fff;
   margin-bottom: 2rem;
 }
+
 .uploadCtn {
-  padding: 1.5rem;
+  padding: 0 1.5rem 1.5rem 1.5rem;
 }
 
 .ucDcLabel {
@@ -77,22 +78,40 @@
   background-position: center;
   border: 0.1rem solid #cd040b;
   margin-bottom: 1rem;
-  background-color: #e6e6e6;
+  background-color: #f5f5f5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.otherImg {
+.ucSelectedImg {
+  max-width:100%;
+  max-height: 100%;
+}
+
+.otherImgInnerCtn {
   display: inline-block;
   height: 4rem;
   width: 4.8rem;
   background-size: cover;
   margin: 0 1rem 0.5rem 0;
   background-position: center;
-  background-color: #e6e6e6;
+  background-color: #f5f5f5;
   border: 1px solid #e6e6e6;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: top;
+  cursor:pointer;
 }
 
-.otherImg:hover {
+.otherImgInnerCtn:hover {
   border: 1px solid #cd040b;
+}
+
+.otherImg{
+  max-width:100%;
+  max-height:100%;
 }
 
 .footer {
@@ -130,4 +149,55 @@
 .thanksMsg {
   text-align: center;
   padding: 5rem 10rem;
+}
+
+.topbar {
+  padding: 0.5rem 0 1.5rem 0;
+  width:100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.profileImgCtn {
+  height:3.7rem;
+  width:3.7rem;
+  overflow:hidden;
+  border-radius: 50%;
+  display:inline-block;
+  vertical-align: top;
+}
+
+.profileImg {
+  height:100%;
+  width:100%;
+}
+
+.userName {
+  font-size: 1.2rem;
+  line-height: 3.7rem;
+  font-weight: bold;
+  display:inline-block;
+  vertical-align: top;
+  margin-left: 1rem;
+  max-width: 22rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.logout {
+  display: inline-block;
+  font-size: 1.2rem;
+  padding: 1rem 1.5rem;
+  background-color: #fff;
+  border: 1px solid #e6e6e6;
+  outline: none;
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #f5f5f5;
+  }
 }
